@@ -50,7 +50,7 @@ func ImageHashKindStringToKind(algorithmType string) goimagehash.Kind {
 		return goimagehash.DHash
 	case "-p":
 		return goimagehash.PHash
-	case "a":
+	case "-a":
 		return goimagehash.AHash
 	default:
 		return goimagehash.Unknown
