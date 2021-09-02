@@ -1,2 +1,35 @@
 # imagehash_cli
 image hash calculation CLI with https://github.com/corona10/goimagehash
+
+## Install
+```
+go install github.com/yu81/imagehash_cli
+```
+
+## Usage
+### single image hash calculation
+```
+# Perception Hash
+imagehash_cli -p path_to_image
+
+# Average Hash
+imagehash_cli -a path_to_image
+
+# Difference Hash
+imagehash_cli -d path_to_image
+```
+output
+```
+14648015642502059055
+```
+
+# Distance between two images
+
+```
+# You can choose hash algorithm as the same as single image hash calculation's ones.
+imagehash_cli -p path_to_image1 path_to_image2 
+```
+output
+```
+13754156118075818639 14648015642502059055 28
+```
