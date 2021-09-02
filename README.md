@@ -1,22 +1,22 @@
-# imagehash_cli
+# imagehash-cli
 image hash calculation CLI with https://github.com/corona10/goimagehash
 
 ## Install
 ```
-go install github.com/yu81/imagehash_cli
+go install github.com/yu81/imagehash-cli
 ```
 
 ## Usage
 ### single image hash calculation
 ```
 # Perception Hash
-imagehash_cli -p path_to_image
+imagehash-cli -p path_to_image
 
 # Average Hash
-imagehash_cli -a path_to_image
+imagehash-cli -a path_to_image
 
 # Difference Hash
-imagehash_cli -d path_to_image
+imagehash-cli -d path_to_image
 ```
 output
 ```
