@@ -1,4 +1,4 @@
-module github.com/yu81/imagehash_cli
+module github.com/yu81/imagehash-cli
 
 go 1.17
 
