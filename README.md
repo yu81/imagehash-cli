@@ -17,6 +17,10 @@ imagehash-cli -a path_to_image
 
 # Difference Hash
 imagehash-cli -d path_to_image
+
+# Wavelet Hash (requires very large memory)
+imagehash-cli -w path_to_image
+```
 ```
 output
 ```
