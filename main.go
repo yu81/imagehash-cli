@@ -8,9 +8,13 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"log"
+	"math"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
+
+	"github.com/mjibson/go-dsp/fft"
 
 	"github.com/corona10/goimagehash"
 )
@@ -23,8 +27,8 @@ func main() {
 		log.Fatal("too few arguments")
 	}
 	algoType := args[1]
-	if !(algoType == "-a" || algoType == "-d" || algoType == "-p") {
-		log.Fatal("wrong algo type, use one of [-a, -d, -p]")
+	if !(algoType == "-a" || algoType == "-d" || algoType == "-p" || algoType == "-w") {
+		log.Fatal("wrong algo type, use one of [-a, -d, -p, -w]")
 	}
 	if argLength == 4 {
 		imagePath1, imagePath2 := args[2], args[3]
@@ -50,8 +54,10 @@ func ImageHashKindStringToKind(algorithmType string) goimagehash.Kind {
 		return goimagehash.DHash
 	case "-p":
 		return goimagehash.PHash
-	case "a":
+	case "-a":
 		return goimagehash.AHash
+	case "-w":
+		return goimagehash.WHash
 	default:
 		return goimagehash.Unknown
 	}
@@ -65,6 +71,8 @@ func ImageHashKindToFunc(algorithmType goimagehash.Kind) func(img image.Image) (
 		return goimagehash.PerceptionHash
 	case goimagehash.AHash:
 		return goimagehash.AverageHash
+	case goimagehash.WHash:
+		return waveletHash
 	default:
 		return nil
 	}
@@ -140,4 +148,47 @@ func imageFromURL(path string) (*image.Image, string, error) {
 		return nil, "", err
 	}
 	return &imgData, format, nil
+}
+
+func getImageGrayData(img image.Image) []complex128 {
+	bounds := img.Bounds()
+	grayData := make([]complex128, bounds.Dx()*bounds.Dy())
+	i := 0
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, _ := img.At(x, y).RGBA()
+			gray := 0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b)
+			grayData[i] = complex(gray, 0)
+			i++
+		}
+	}
+	return grayData
+}
+
+func waveletHash(img image.Image) (*goimagehash.ImageHash, error) {
+	// Apply FFT to get frequency components
+	data := getImageGrayData(img)
+	fftResult := fft.FFT(data)
+
+	// Get absolute values of FFT results
+	absValues := make([]float64, len(fftResult))
+	for i, val := range fftResult {
+		absValues[i] = math.Sqrt(real(val)*real(val) + imag(val)*imag(val))
+	}
+
+	// Calculate the median
+	sortedValues := make([]float64, len(absValues))
+	copy(sortedValues, absValues)
+	sort.Float64s(sortedValues)
+	median := sortedValues[len(sortedValues)/2]
+
+	// Create hash: 1 if greater than median, 0 otherwise
+	var hash uint64 = 0
+	for i := 0; i < len(absValues); i++ {
+		if absValues[i] > median {
+			hash |= 1 << uint(i)
+		}
+	}
+
+	return goimagehash.NewImageHash(hash, goimagehash.WHash), nil
 }
