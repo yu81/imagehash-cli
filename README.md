@@ -21,7 +21,6 @@ imagehash-cli -d path_to_image
 # Wavelet Hash (requires very large memory)
 imagehash-cli -w path_to_image
 ```
-```
 output
 ```
 14648015642502059055
